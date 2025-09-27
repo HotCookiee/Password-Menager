@@ -12,10 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yourname.passwordmanager.data.model.PasswordEntry
 import com.yourname.passwordmanager.ui.component.PasswordItem
 import com.yourname.passwordmanager.ui.viewmodel.PasswordViewModel
+import kotlin.io.encoding.Base64
 
 /**
  * Main screen displaying the list of passwords
@@ -194,7 +196,8 @@ private fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onClearClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+
 ) {
     OutlinedTextField(
         value = query,
@@ -211,6 +214,6 @@ private fun SearchBar(
                 }
             }
         },
-        modifier = modifier // Use the modifier passed into the function
+        modifier = modifier.padding(15.dp) // Use the modifier passed into the function
     )
 }

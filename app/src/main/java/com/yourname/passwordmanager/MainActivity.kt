@@ -21,7 +21,6 @@ import com.yourname.passwordmanager.ui.viewmodel.PasswordViewModel
 /**
  * Main Activity - Entry point of the application
  */
-
 class MainActivity : ComponentActivity() {
     
     private lateinit var viewModel: PasswordViewModel
@@ -67,8 +66,6 @@ class MainActivity : ComponentActivity() {
 /**
  * Main app composable
  */
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordManagerApp(
@@ -92,11 +89,11 @@ fun PasswordManagerApp(
 /**
  * Preview for the main app
  */
-@Composable
 @Preview(showBackground = true)
+@Composable
 fun PasswordManagerAppPreview() {
     PasswordManagerTheme {
-        //Preview with mock data - you'd need to create a mock ViewModel
-        //PasswordManagerApp(viewModel = mockViewModel)
+        // Preview with mock data - you'd need to create a mock ViewModel
+        // PasswordManagerApp(viewModel = mockViewModel)
     }
 }

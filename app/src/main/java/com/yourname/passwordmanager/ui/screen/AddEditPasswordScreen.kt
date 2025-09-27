@@ -176,7 +176,7 @@ private fun TopAppBar(
     onSave: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(15.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -192,6 +192,7 @@ private fun TopAppBar(
         Button(
             onClick = onSave,
             enabled = isFormValid && !isLoading
+
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
@@ -201,7 +202,9 @@ private fun TopAppBar(
             } else {
                 Text(if (isEditing) "Update" else "Save")
             }
+
         }
+
     }
 }
 
