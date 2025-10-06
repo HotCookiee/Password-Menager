@@ -6,7 +6,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,48 +22,91 @@ import androidx.compose.ui.unit.dp
 import com.yourname.passwordmanager.data.model.PasswordEntry
 import com.yourname.passwordmanager.ui.component.PasswordItem
 import com.yourname.passwordmanager.ui.viewmodel.PasswordViewModel
-import kotlin.io.encoding.Base64
 
-/**
- * Main screen displaying the list of passwords
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     viewModel: PasswordViewModel,
     onAddPasswordClick: () -> Unit,
     onPasswordClick: (PasswordEntry) -> Unit,
+    onGeneratorClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val passwords by viewModel.passwords.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
 
-    // Show encryption warning if needed
-    LaunchedEffect(uiState.isEncryptionAvailable) {
-        if (!uiState.isEncryptionAvailable) {
-            // Handle encryption not available
-        }
-    }
+    Scaffold(modifier = Modifier.padding(0.dp,10.dp),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
 
-    // Root container for the screen
-    Box(modifier = modifier.fillMaxSize()) {
+                        "My Passwords",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
+                actions = {
+                    IconButton(
+                        onClick = onGeneratorClick,
+                        modifier = Modifier.size(50.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Password,
+                            contentDescription = "Generate Password",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = modifier.size(35.dp)
+                        )
+                    }
+                    IconButton(
+                        onClick = onSettingsClick,
+                        modifier = Modifier.size(50.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = MaterialTheme.colorScheme.primary ,
+                            modifier = modifier.size(35.dp)
+                        )
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddPasswordClick,
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(56.dp)
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Add Password",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+    ) { padding ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(padding)
         ) {
-            // Search bar
+            // Search bar with better spacing
             SearchBar(
                 query = searchQuery,
                 onQueryChange = viewModel::updateSearchQuery,
                 onClearClick = viewModel::clearSearch,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Content based on state
+            // Content
             when {
                 uiState.isLoading -> {
                     LoadingContent()
@@ -66,7 +114,8 @@ fun MainScreen(
                 passwords.isEmpty() -> {
                     EmptyContent(
                         hasSearchQuery = searchQuery.isNotBlank(),
-                        searchQuery = searchQuery
+                        searchQuery = searchQuery,
+                        onAddClick = onAddPasswordClick
                     )
                 }
                 else -> {
@@ -77,38 +126,10 @@ fun MainScreen(
                 }
             }
         }
-
-        // Floating Action Button
-        FloatingActionButton(
-            onClick = onAddPasswordClick,
-            modifier = Modifier
-                .align(Alignment.BottomEnd) // This now works because it's inside a Box
-                .padding(16.dp)
-        ) {
-            Icon(
-                Icons.Default.Add,
-                contentDescription = "Add Password"
-            )
-        }
-    }
-
-
-    // Show messages
-    uiState.errorMessage?.let { message ->
-        LaunchedEffect(message) {
-            // Show snackbar or toast
-        }
-    }
-
-    uiState.successMessage?.let { message ->
-        LaunchedEffect(message) {
-            // Show snackbar or toast
-        }
     }
 }
 
-// Helper composables moved outside MainScreen
-
+// Остальные композаблы без изменений
 @Composable
 private fun LoadingContent() {
     Box(
@@ -128,11 +149,11 @@ private fun LoadingContent() {
         }
     }
 }
-
 @Composable
 private fun EmptyContent(
     hasSearchQuery: Boolean,
-    searchQuery: String
+    searchQuery: String,
+    onAddClick: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -142,24 +163,33 @@ private fun EmptyContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(32.dp)
         ) {
+            Icon(
+                Icons.Default.Lock,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text(
                 text = if (hasSearchQuery) {
-                    "No passwords found for \"$searchQuery\""
+                    "Nothing found for \"$searchQuery\""
                 } else {
-                    "No passwords saved yet"
+                    "No passwords yet"
                 },
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = if (hasSearchQuery) {
-                    "Try adjusting your search terms"
+                    "Try different search words"
                 } else {
-                    "Tap the + button to add your first password"
+                    "Add your first password to get started"
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
@@ -168,7 +198,6 @@ private fun EmptyContent(
         }
     }
 }
-
 @Composable
 private fun PasswordList(
     passwords: List<PasswordEntry>,
@@ -176,7 +205,7 @@ private fun PasswordList(
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(bottom = 80.dp) // Account for FAB
+        contentPadding = PaddingValues(bottom = 80.dp)
     ) {
         items(
             items = passwords,
@@ -196,8 +225,7 @@ private fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onClearClick: () -> Unit,
-    modifier: Modifier = Modifier,
-
+    modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
         value = query,
@@ -214,6 +242,6 @@ private fun SearchBar(
                 }
             }
         },
-        modifier = modifier.padding(15.dp) // Use the modifier passed into the function
+        modifier = modifier
     )
 }

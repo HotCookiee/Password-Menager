@@ -2,16 +2,18 @@ package com.yourname.passwordmanager.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import androidx.navigation.NavType
 import com.yourname.passwordmanager.ui.screen.AddEditPasswordScreen
 import com.yourname.passwordmanager.ui.screen.MainScreen
+import com.yourname.passwordmanager.ui.screen.PasswordGeneratorScreen
+import com.yourname.passwordmanager.ui.screen.SettingsScreen
 import com.yourname.passwordmanager.ui.viewmodel.PasswordViewModel
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Modifier
 
 /**
  * Navigation routes for the app
@@ -20,7 +22,9 @@ object NavigationRoutes {
     const val MAIN = "main"
     const val ADD_PASSWORD = "add_password"
     const val EDIT_PASSWORD = "edit_password/{passwordId}"
-    
+    const val GENERATOR = "generator"
+    const val SETTINGS = "settings"
+
     fun editPassword(passwordId: Long): String {
         return "edit_password/$passwordId"
     }
@@ -49,10 +53,16 @@ fun PasswordManagerNavigation(
                 onPasswordClick = { password ->
                     viewModel.selectPassword(password)
                     navController.navigate(NavigationRoutes.editPassword(password.id))
+                },
+                onGeneratorClick = {
+                    navController.navigate(NavigationRoutes.GENERATOR)
+                },
+                onSettingsClick = {
+                    navController.navigate(NavigationRoutes.SETTINGS)
                 }
             )
         }
-        
+
         // Add new password screen
         composable(NavigationRoutes.ADD_PASSWORD) {
             AddEditPasswordScreen(
@@ -63,19 +73,19 @@ fun PasswordManagerNavigation(
                 }
             )
         }
-        
+
         // Edit existing password screen
         composable(
             route = NavigationRoutes.EDIT_PASSWORD,
             arguments = listOf(
-                navArgument("passwordId") { 
-                    type = NavType.LongType 
+                navArgument("passwordId") {
+                    type = NavType.LongType
                 }
             )
         ) { backStackEntry ->
             val passwordId = backStackEntry.arguments?.getLong("passwordId") ?: 0L
             val selectedPassword = viewModel.selectedPassword.collectAsState().value
-            
+
             // If we have the selected password, use it; otherwise fetch by ID
             if (selectedPassword != null && selectedPassword.id == passwordId) {
                 AddEditPasswordScreen(
@@ -99,7 +109,7 @@ fun PasswordManagerNavigation(
                         }
                     }
                 }
-                
+
                 // Show loading while fetching
                 selectedPassword?.let { password ->
                     AddEditPasswordScreen(
@@ -113,6 +123,26 @@ fun PasswordManagerNavigation(
                 }
             }
         }
+
+        // Password generator screen
+        composable(NavigationRoutes.GENERATOR) {
+            PasswordGeneratorScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() },
+                onPasswordGenerated = { generatedPassword ->
+                    // Можно передать пароль обратно в добавление
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // Settings screen
+        composable(NavigationRoutes.SETTINGS) {
+            SettingsScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
     }
 }
 
@@ -120,21 +150,35 @@ fun PasswordManagerNavigation(
  * Navigation extensions for better type safety
  */
 object NavigationExtensions {
-    
+
     /**
      * Navigate to add password screen
      */
     fun NavHostController.navigateToAddPassword() {
         navigate(NavigationRoutes.ADD_PASSWORD)
     }
-    
+
     /**
      * Navigate to edit password screen
      */
     fun NavHostController.navigateToEditPassword(passwordId: Long) {
         navigate(NavigationRoutes.editPassword(passwordId))
     }
-    
+
+    /**
+     * Navigate to password generator screen
+     */
+    fun NavHostController.navigateToGenerator() {
+        navigate(NavigationRoutes.GENERATOR)
+    }
+
+    /**
+     * Navigate to settings screen
+     */
+    fun NavHostController.navigateToSettings() {
+        navigate(NavigationRoutes.SETTINGS)
+    }
+
     /**
      * Navigate back to main screen, clearing the back stack
      */
@@ -145,7 +189,7 @@ object NavigationExtensions {
             }
         }
     }
-    
+
     /**
      * Safe pop back stack
      */

@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.ksp) // для Room
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose) // обязательно для Kotlin 2.0+
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -20,6 +20,13 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
+
+    signingConfigs {
+        getByName("debug") {
+
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -27,6 +34,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
+        }
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -42,7 +53,6 @@ android {
         compose = true
     }
 
-    // ⚠️ Убираем composeOptions — он больше не нужен с Kotlin 2.0
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }

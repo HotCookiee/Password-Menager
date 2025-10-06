@@ -17,6 +17,9 @@ import androidx.compose.ui.unit.dp
 import com.yourname.passwordmanager.data.model.PasswordEntry
 import com.yourname.passwordmanager.ui.viewmodel.PasswordViewModel
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.BiasAbsoluteAlignment
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 
 /**
  * Screen for adding or editing a password entry
@@ -176,35 +179,49 @@ private fun TopAppBar(
     onSave: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(15.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onNavigateBack) {
+        // Back button
+        IconButton(
+            onClick = onNavigateBack,
+            modifier = Modifier.size(40.dp),
+
+        ) {
             Icon(Icons.Default.ArrowBack, contentDescription = "Back")
         }
-        
+
+        // Title - centered
         Text(
             text = if (isEditing) "Edit Password" else "Add Password",
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.weight(1f).padding(10.dp),
+            textAlign = TextAlign.Center
+
         )
-        
+
+        // Save button
         Button(
             onClick = onSave,
-            enabled = isFormValid && !isLoading
-
+            enabled = isFormValid && !isLoading,
+            modifier = Modifier.width(80.dp)
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(16.dp),
-                    strokeWidth = 2.dp
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
-                Text(if (isEditing) "Update" else "Save")
+                Text(
+                    text = if (isEditing) "Update" else "Save",
+                    fontSize = 14.sp
+                )
             }
-
         }
-
     }
 }
 
